@@ -1,7 +1,10 @@
 # Linear_Regression
 Applied Linear Statistical Models (Fifth Edition) by Michael H. Kutner
 
+
+
 Problem 1.20 Page 35
+
 Copier maintenance. The Tri-City Office Equipment Corporation sells an imported copier on a franchise basis and performs preventive maintenance and repair service on this copier. The data below have been collected from 45 recent calls on users to perform routine preventive maintenance service; for each call, X is the number of copiers serviced and Y is the total number of minutes spent by the service person. Assume that first-order regression model (1.1) is appropriate.
 
 a. Obtain the estimated regression function.
