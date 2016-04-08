@@ -1,0 +1,189 @@
+---
+title: "Copier_Maintenance_Model"
+author: "Shah Shoib"
+date: "April 8, 2016"
+output: pdf_document
+---
+[Linkedin Profile](https://www.linkedin.com/in/shahshoib)
+
+# Basic Introduction to Linear Regression
+Linear analysis is a statistical methodology tgat utilizes the relationship between two or more quantitative varaibles so that a response or outcome varriable cab be predicted from the other or others.
+
+##Four conditions that comprises the simple linear regression model are:
+
+  + The mean of the response E(Yi) at each value of the predictor Xi is the linear function of the Xi
+  + The errors are independent
+  + The errors at each value of the predictor Xi are normally distributed
+  + The errors at each value of the predictor Xi have equal variance (Homoscedasticity)
+
+# Here is a problem
+Copier maintenance. The Tri-City Office Equipment Corporation sells an imported copier on a franchise basis and performs preventive maintenance and repair service on this copier. The data below have been collected from 45 recent calls on users to perform routine preventive maintenance service; for each call, X is the number of copiers serviced and Y is the total number of minutes spent by the service person. Assume that first-order regression model (1.1) is appropriate.
+```{r}
+#Reading the table from the URL
+copier_data <- read.table("http://www.stat.ufl.edu/~rrandles/sta4210/Rclassnotes/data/textdatasets/KutnerData/Chapter%20%201%20Data%20Sets/CH01PR20.txt",header=FALSE,sep="",col.names=c("Time","No_Copiers"))
+attach(copier_data)
+ #Checking the top 3 data rows and number of data in the given dataset
+head(copier_data,3);dim(copier_data)
+summary(copier_data)
+
+# Estimated regression function.
+copier.lm <- lm(Time~No_Copiers,data=copier_data)
+#Summary of Regression Model
+summary(copier.lm)
+
+#Extracting fitted values
+yhat <- -0.5802 + 15.0352*No_Copiers
+
+#Plot the estimated regression function and the data.
+plot(No_Copiers,Time,main="Estimated Regression Function & the Data",pch=20,col=491)
+abline(copier.lm,coef=coef(copier.lm),lty=1,col="red")
+
+anova(copier.lm)
+
+#Obtain a point estimate of the mean service time when X = 5 copiers are 
+#serviced.
+yhat <- -0.5802 + 15.0352*5
+
+
+#Obtaining the residuals
+e <- copier.lm$residuals
+
+#Obtaining the Error sum of squares (SSE) and Error mean square (MSE)
+SSE <- anova(copier.lm)[2,2]
+#MIN Q = sum(copier.lm$residuals)^2
+MSE <- anova(copier.lm)[2,3]
+sqrt(MSE)
+
+b1 <-15.0352
+
+#Obtain point estimates of variance and sd?
+xbar = mean(No_Copiers)
+var.b1 <- MSE/sum((No_Copiers-xbar)^2)
+s.b1 <- sqrt(var.b1)
+
+#Estimate the change in the mean service time when the number of copiers 
+#serviced increases by one. Use a 90 percent confidence interval. #Interpret your confidence interval.
+
+t<-qt(1-.05,45-2)
+#The 90% confidence interval is
+
+rightb1<-b1-t*s.b1
+leftb1<-b1+t*s.b1
+c(rightb1,leftb1) 
+
+# H0:b1 equal = 0 & Ha:b1 not equal = 0
+
+t.star = (b1-14)/s.b1
+#if |t.star| less than equal to t(1-alpha/2;n-2),concule H0
+#if |t.star| greater than t(1-alpha/2;n-2),concule Ha
+n=45
+alpha=.05
+qt(1-alpha/2,n-2)
+
+#Since 31.12316 > 2.016692, we conclude Ha that b1 is not equal to 0 or 
+#that  there is a linear association between X and Y. The value of t
+#-statistic is 31.12316
+
+#Conduct a t test to determine whether or not there is a linear associatio
+#n between X and Y here; control the a risk at .10. State the alternatives
+#,decision rule, and conclusion. What is the P-value of your test?
+
+
+pt( 2.1428,45-2)
+
+# H0:b1 equal = 14 & Ha:b1 not equal = 14
+
+var.b0 <- MSE*(1/n+(xbar^2/sum(No_Copiers-xbar)^2))
+sb.b0 <- sqrt(var.b0)
+b0<--0.5802
+
+t.star = (b0)/sb.b0
+
+t<-qt(1-.05,45-2)
+p.value = pt(-abs(t.star), df=length(Time)-1)
+
+#Set up the basic ANOVA table in the format ofTable 2.2. Which elements 
+#of your table are additive? Also set up the ANOVA table in the format 
+#of Table 2.3. How do the two tables differ?
+
+(anova(copier.lm))
+
+SSR <- anova(copier.lm)[1,2]
+SSE <- anova(copier.lm)[2,2]
+MSE <- anova(copier.lm)[2,3]
+SSTO<- sum(anova(copier.lm)[,2])
+
+pvalue <- anova(copier.lm)[1,5]
+MSR <- SSR/1
+#Conduct an F test to determine whether or not there is a linear associati
+#on between time spent and number of copiers serviced; use a = .10. State 
+#the alternatives, decision rule, and conclusion.
+
+(Fstar <- MSR/MSE)
+
+#F-statistics
+qf(1-.10,1,43)
+
+#H0: b1=0
+#Ha:b1 != 0
+
+#Decision rule when the risk  of a Type I error is to be controlled at 
+#alpha
+
+# if Fstar <= F(1-apha,1,n-2), conclude H0
+# if Fstar > F(1-apha,1,n-2), conclude Ha
+
+#Since Fstar = 968.65 we conclude Ha
+
+#By how much, relatively, is the total variation in number of minutes 
+#spent on a call- reduced when the number of copiers serviced is introduce
+#d into the analysis? Is this a relatively small or large reduction? What 
+#is the name of this measure?
+
+Rsquare <- SSR/SSTO #Coefficient of determination
+
+#Calculate r and attach the appropriate sign.
+sqrt(Rsquare)
+
+#Which measure, r or R2, has the more clear-cut operational interpretation?
+Rsquare 
+
+#problem 4.3 page 172
+
+#Extracting the regression coefficients
+b0 <- summary(copier.lm)$coefficients[1, 1] #Intercept
+b1 <- summary(copier.lm)$coefficients[2, 1] #Slope
+
+#Extracting standard errors for the regression coefficients
+sd.b0 <- summary(copier.lm)$coefficients[1, 2]
+sd.b1 <- summary(copier.lm)$coefficients[2, 2]
+
+# Calulating Benferroni Interval
+alpha <- .05
+g<-2
+n<-45
+bfi <- qt(1-alpha/(2*g),n-2)
+bfi
+
+# Benferroni Joint Confidence Interval
+# For intercept b0
+bfi_b0_right <- b0 - bfi*sd.b0
+bfi_b0_left <- b0 + bfi*sd.b0
+c(bfi_b0_right,bfi_b0_left)
+
+# For intercept b1
+bfi_b1_right <- b1 - bfi*sd.b1
+bfi_b1_left <- b1 + bfi*sd.b1
+c(bfi_b1_right,bfi_b1_left)
+
+# Benferron Joint Confidence Interval for beta0 and beta1 are
+paste(bfi_b0_right,"<=beta0<=",bfi_b0_left)
+paste(bfi_b1_right,"<=beta1<=",bfi_b1_left)
+
+# As per the recommendation suggested by the consultant for beta0 and 
+#beta1 lies in the confidence interval calulated using benferroni 
+#confidence interval
+
+detach(copier_data)
+```
+
